@@ -274,6 +274,40 @@
   .dw-go{width:100%;background:var(--ink);color:#fff;border-radius:14px;padding:14px;font-weight:800;font-size:15px;transition:transform .15s}
   .dw-go:active{transform:scale(.98)}.dw-go:disabled{opacity:.4}
 
+  .hitem .hedit{font-size:14px;opacity:.4;padding:4px;flex:0 0 auto}
+  .hitem .hedit:active{opacity:1}
+
+  /* 抽奖三时段 */
+  .drawslots{display:flex;gap:8px;margin-bottom:12px}
+  .dslot{flex:1;border-radius:13px;background:var(--bg);border:2px solid var(--line);padding:9px 5px;text-align:center}
+  .dslot.now{border-color:#FF5E7E;background:#FFF0EA}
+  .dslot .dst{font-size:11px;color:var(--ink-soft);font-weight:700}
+  .dslot .dsv{font-size:20px;margin-top:4px;min-height:24px;line-height:1}
+  .dslot .dss{font-size:9.5px;color:var(--ink-soft);margin-top:3px}
+  .dslot.now .dss{color:#E8553A;font-weight:700}
+  .drawothers{display:flex;flex-direction:column;gap:7px;margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+  .drawothers .doh{font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-bottom:2px}
+  .dorow{display:flex;align-items:center;gap:9px;font-size:13px}
+  .dorow .doa{font-size:17px}
+  .dorow .dn{flex:1;font-weight:600}
+  .dorow .de{letter-spacing:3px;font-size:15px}
+  .dorow .de .miss{opacity:.25}
+
+  /* 九宫格抽奖 */
+  .grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0 4px}
+  .g9{aspect-ratio:1;border-radius:14px;background:var(--card);border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:3px;transition:transform .08s,border-color .08s,background .08s}
+  .g9 .g9e{font-size:23px;line-height:1}
+  .g9 .g9n{font-size:9.5px;color:var(--ink-soft);font-weight:700;line-height:1.05;text-align:center}
+  .g9.lit{border-color:#FF5E7E;background:#FFE3D6;transform:scale(1.05)}
+  .g9.center{background:linear-gradient(135deg,#FF8A4A,#FF5E7E);border:none;color:#fff}
+  .g9.center .g9c{font-size:14px;font-weight:800;line-height:1.2;text-align:center}
+  .g9.center.ready{cursor:pointer}
+  .g9.center.ready:active{transform:scale(.94)}
+  .g9.center.disabled{background:var(--bg2);color:var(--ink-soft)}
+
+  /* 分享按钮 */
+  .rp-share{width:100%;background:var(--ink);color:#fff;border-radius:13px;padding:13px;font-weight:800;font-size:14px;margin-bottom:10px;transition:transform .15s}
+  .rp-share:active{transform:scale(.98)}
   .footnote{text-align:center;font-size:11.5px;color:var(--ink-soft);margin-top:24px;line-height:1.8}
   .loading{text-align:center;padding:60px 20px;color:var(--ink-soft)}
   .loading .spin{width:34px;height:34px;border:4px solid var(--line);border-top-color:#FF6B4A;border-radius:50%;margin:0 auto 14px;animation:rot .8s linear infinite}
@@ -337,9 +371,11 @@
     <div class="board" id="m-board"></div>
 
     <div class="panel">
-      <div class="panel-h"><span class="ico">🎰</span>今日手气<span class="tail">每天一抽，大多是好心情</span></div>
-      <button class="drawbtn" id="draw-btn">抽今天的签 🎲</button>
+      <div class="panel-h"><span class="ico">🎰</span>今日手气<span class="tail">每天 3 场 · 北京时间</span></div>
+      <div class="drawslots" id="draw-slots"></div>
+      <button class="drawbtn" id="draw-btn">抽这一场 🎲</button>
       <div class="drawnote" id="draw-note"></div>
+      <div class="drawothers" id="draw-others"></div>
     </div>
 
     <div class="panel">
@@ -351,7 +387,7 @@
       <div class="panel-h"><span class="ico">🎯</span>你今天还能花</div>
       <div class="allowance">
         <div class="big num" id="al-big">¥32</div>
-        <div class="side">按节奏可花 <b class="num" id="al-target">¥32.26</b><br>今天已花 <b class="num" id="al-spent">¥0</b></div>
+        <div class="side">每日额度 <b class="num" id="al-target">¥32.26</b><br>今天已花 <b class="num" id="al-spent">¥0</b></div>
       </div>
       <div class="hint" id="al-hint">花得越克制，明天的额度越宽裕。</div>
       <button class="addbtn" id="m-addbtn">＋ 记一笔今天的花费</button>
@@ -407,6 +443,7 @@
 <div class="sheet" id="sheet">
   <h3>⚙️ 设置</h3>
   <div class="row"><span>我现在是 <b id="set-mename"></b></span><button id="set-switch">换个身份</button></div>
+  <div class="row"><span>邀请朋友加入</span><button id="set-invite">分享链接</button></div>
   <div class="row"><span>查看战报</span><button id="set-report">打开</button></div>
   <div class="row"><span>提醒（页面打开时）</span><button id="set-notify">开启</button></div>
   <div class="row"><span>手动刷新</span><button id="set-refresh">刷新</button></div>
@@ -430,7 +467,13 @@ const PALETTE=[
   {c:'#E8883A',s:'#FFEAD2'},{c:'#E85A9B',s:'#FBDBEC'},{c:'#4A9DEE',s:'#DCEBFB'},
   {c:'#6BAE3D',s:'#E6F2D5'},{c:'#C9712F',s:'#F6E0CE'}
 ];
-const CATS=[{id:'food',emo:'🍚',name:'吃'},{id:'wear',emo:'👕',name:'穿'},{id:'home',emo:'🏠',name:'住'},{id:'go',emo:'🚇',name:'行'},{id:'other',emo:'🛒',name:'其他'}];
+const CATS=[
+  {id:'food',emo:'🍚',name:'吃',subs:['三餐','外卖','奶茶','咖啡','零食','买菜','聚餐','水果']},
+  {id:'wear',emo:'👕',name:'穿',subs:['衣服','鞋子','包包','配饰','美妆','护肤']},
+  {id:'home',emo:'🏠',name:'住',subs:['房租','水电燃气','日用品','家居','话费网费']},
+  {id:'go',emo:'🚇',name:'行',subs:['公交地铁','打车','共享单车','加油','火车机票']},
+  {id:'other',emo:'🛒',name:'其他',subs:['娱乐','医疗','人情','学习','宠物','其他']}
+];
 const catOf=id=>CATS.find(c=>c.id===id)||CATS[4];
 
 const QUICK_NOTES=['吃饭🍚','奶茶🧋','交通🚇','买菜🥬','日用🧴','聚餐🎉','打车🚕','咖啡☕'];
@@ -469,13 +512,21 @@ const PRIZES=[
   {id:'transfer',w:8,emo:'➡️', name:'转嫁一笔', desc:'把你的一笔消费，甩给一位朋友'},
   {id:'swap',  w:7,  emo:'🔄', name:'交换一笔', desc:'和一位朋友，互换各自的一笔消费'}
 ];
+// 每天三场，按北京时间；endH 为该场截止小时
+const SLOTS=[
+  {id:1,name:'早场',endH:8, label:'8:00前'},
+  {id:2,name:'午场',endH:18,label:'18:00前'},
+  {id:3,name:'晚场',endH:22,label:'22:00前'}
+];
+// 九宫格 8 个外格，按权重铺（好心情占多格），顺时针环序
+const WHEEL=['mood','budget','discount','mood','waive','mood','transfer','swap'];
 
 /* ============== 状态 ============== */
 let state={ me:null, cfg:null, exp:{}, re:{}, fx:{}, draw:{} };
 let computed={};
 let pollTimer=null, mantraIdx=0, notifyOn=false, lastFeedCount=0;
 let calMode=null, reportSeen=false, reactTarget=null, lastFxAffectingMe=0;
-let suEmo=EMOS[0], jnEmo=EMOS[0], curCat='other';
+let suEmo=EMOS[0], jnEmo=EMOS[0], curCat='food', editingId=null;
 let pendingDraw=null; // {prize, myExp, target, otherExp}
 
 /* ============== storage ============== */
@@ -589,7 +640,7 @@ function render(){
   else{ $('ds-state').textContent='第 '+pr.dayNo+' 天'; $('ds-left').textContent='还剩 '+(pr.remainDays-1)+' 天'; }
 
   renderBoard(pr);
-  renderDrawBtn();
+  renderDrawBtn(); renderDrawSlots(); renderDrawOthers();
   renderToday(pr);
   renderTargets();
   renderFeed();
@@ -638,21 +689,25 @@ function renderToday(pr){
   const c=state.cfg, mine=computed[state.me]; if(!mine)return;
   const t=todayISO(), todaySpent=mine.list.filter(e=>e.date===t).reduce((s,e)=>s+e.eff,0);
   $('al-spent').textContent='¥'+yuan(todaySpent);
-  let target = pr.phase==='during'? mine.balance/pr.remainDays : pr.phase==='before'? c.budget/c.days : 0;
-  $('al-target').textContent='¥'+yuan(Math.max(0,target));
-  const can=target-todaySpent; const big=$('al-big');
-  big.textContent='¥'+yuan(can); big.classList.toggle('neg',can<0);
+  const daily=mine.budget/c.days;
+  $('al-target').textContent='¥'+yuan(daily);
+  // 累计结转：到今天为止的配额 − 到今天为止的实花（含今天）
+  let can;
+  if(pr.phase==='during'){ can = pr.dayNo*daily - mine.total; }
+  else if(pr.phase==='before'){ can = daily; }
+  else { can = mine.budget - mine.total; }
+  const big=$('al-big'); big.textContent='¥'+yuan(can); big.classList.toggle('neg',can<0);
   if(pr.phase==='before') $('al-hint').textContent='挑战还没开始，先攒攒手感（现在记也行）。';
   else if(pr.phase==='after') $('al-hint').textContent='挑战已结束，去看看最终战报吧。';
-  else if(can<0) $('al-hint').textContent='今天超了，明天额度会被压缩，悠着点 🫣';
-  else if(can<8) $('al-hint').textContent='额度不多了，今天靠库存过日子吧 🥗';
-  else $('al-hint').textContent='花得越克制，明天的额度越宽裕 💛';
+  else if(can<0) $('al-hint').textContent='累计已经透支了，接下来得连本带利省回来 🫣';
+  else if(can<8) $('al-hint').textContent='额度见底，今天靠库存过日子吧 🥗';
+  else $('al-hint').textContent='之前省下的都结转到今天了，但别浪 💛';
 }
 
 function renderTargets(){
   const box=$('m-targets'); box.innerHTML='';
   const others=state.cfg.players.filter(p=>p.id!==state.me);
-  if(!others.length){ box.innerHTML='<span style="font-size:12.5px;color:var(--ink-soft)">还没有别的搭子，把链接发给朋友吧</span>'; return; }
+  if(!others.length){ box.innerHTML='<button class="tgt" id="invite-empty" style="border-style:dashed">＋ 邀请朋友加入</button>'; const ie=$('invite-empty'); if(ie)ie.onclick=shareInvite; return; }
   if(!reactTarget||!others.find(p=>p.id===reactTarget)) reactTarget=others[0].id;
   others.forEach(p=>{
     const b=document.createElement('button'); b.className='tgt'+(p.id===reactTarget?' on':'');
@@ -695,7 +750,7 @@ function buildFeedEvents(){
       if(text) evs.push({ts:f.ts,emo,text,hot});
     });
     const dm=state.draw[p.id]||{};
-    Object.values(dm).forEach(d=>{ if(d.prize==='mood'&&!(d.name||'').includes('安慰')) evs.push({ts:d.ts,emo:'🍀',text:`${nameOf(p.id)} 抽了个寂寞，收获好心情 +1`,hot:false}); });
+    Object.values(dm).forEach(day=>{ Object.values(day||{}).forEach(d=>{ if(d&&d.prize==='mood'&&!(d.name||'').includes('安慰')) evs.push({ts:d.ts,emo:'🍀',text:`${nameOf(p.id)} 抽了个寂寞，收获好心情 +1`,hot:false}); }); });
   });
   evs.sort((a,b)=>b.ts-a.ts);
   return evs;
@@ -764,18 +819,21 @@ function renderHist(){
     const cat=catOf(e.cat), struck=e.eff!==e.amount, dd=e.date.slice(5).replace('-','/');
     const tagTxt=e.tags.length?e.tags.join(' · '):cat.name;
     const d=document.createElement('div'); d.className='hitem';
-    const delBtn = String(e.id).startsWith('in_')?'':`<button class="hdel" data-id="${e.id}">✕</button>`;
+    const isIn = String(e.id).startsWith('in_');
+    const editBtn = isIn?'':`<button class="hedit" data-id="${e.id}">✎</button>`;
+    const delBtn = isIn?'':`<button class="hdel" data-id="${e.id}">✕</button>`;
     const amtHtml = struck
       ? `<div class="hamt num"><span class="struck">¥${yuan(e.amount)}</span> ¥${yuan(e.eff)}</div>`
       : `<div class="hamt num">¥${yuan(e.eff)}</div>`;
     d.innerHTML=`<div class="hcat">${cat.emo}</div>
       <div class="hbody"><div class="hnote">${esc(e.note||cat.name)}</div><div class="htag">${esc(tagTxt)}</div></div>
-      <div class="hday num">${dd}</div>${amtHtml}${delBtn}`;
+      <div class="hday num">${dd}</div>${amtHtml}${editBtn}${delBtn}`;
     hist.appendChild(d);
   });
   const tot=computed[state.me].total, bud=computed[state.me].budget;
   $('m-histfoot').textContent = list.length? `累计花 ¥${yuan(tot)} · 预算 ¥${yuan(bud)} · 还剩 ¥${yuan(bud-tot)}` : '';
   hist.querySelectorAll('.hdel').forEach(b=>b.onclick=()=>delExpense(b.dataset.id));
+  hist.querySelectorAll('.hedit').forEach(b=>b.onclick=()=>editExpense(b.dataset.id));
 }
 
 /* ============== 操作：记账/互动 ============== */
@@ -783,10 +841,21 @@ async function saveExpense(){
   const amt=parseFloat($('ai-amt').value);
   if(isNaN(amt)||amt<0){ toast('填个有效金额吧'); return; }
   const note=$('ai-note').value.trim();
+  if(editingId){
+    const arr=state.exp[state.me]||[]; const e=arr.find(x=>x.id===editingId);
+    if(e){ e.amount=amt; e.note=note; e.cat=curCat; await sSet(kExp(state.me),JSON.stringify(arr),true); }
+    closeAddForm(); render(); toast('改好了 ✏️'); return;
+  }
   const item={id:uid(),date:todayISO(),amount:amt,note,cat:curCat,ts:Date.now()};
   await appendMine(kExp,'exp',item);
   closeAddForm(); render();
   toast(SPEND_REACT.find(r=>amt<=r.max).t);
+}
+function editExpense(id){
+  const e=(state.exp[state.me]||[]).find(x=>x.id===id); if(!e)return;
+  editingId=id; openAddForm();
+  $('ai-amt').value=e.amount; setCat(e.cat||'food'); $('ai-note').value=e.note||'';
+  $('ai-save').textContent='保存修改';
 }
 async function delExpense(id){
   let arr=(state.exp[state.me]||[]).filter(e=>e.id!==id);
@@ -810,49 +879,106 @@ function pickPrize(){
   const tot=PRIZES.reduce((s,p)=>s+p.w,0); let r=Math.random()*tot;
   for(const p of PRIZES){ if(r<p.w)return p; r-=p.w; } return PRIZES[0];
 }
-function drawnToday(){ const t=todayISO(); return (state.draw[state.me]||{})[t]; }
+function drawnToday(){ return null; } // 兼容占位（旧调用已替换）
+function bjNow(){ const d=new Date(Date.now()+8*3600000); return {iso:d.toISOString().slice(0,10),hour:d.getUTCHours(),min:d.getUTCMinutes()}; }
+function currentSlot(){ const h=bjNow().hour; if(h<8)return 1; if(h<18)return 2; if(h<22)return 3; return null; }
+function drawRec(pid,iso,slot){ const d=(state.draw[pid]||{})[iso]; return d?d[slot]:null; }
+function myDrawn(slot){ return drawRec(state.me,bjNow().iso,slot); }
+
 function renderDrawBtn(){
-  const d=drawnToday(), btn=$('draw-btn'), note=$('draw-note');
-  if(d){ btn.classList.add('done'); btn.textContent='今日已抽：'+d.emo+' '+d.name; note.textContent='明天再来碰碰运气～'; }
-  else{ btn.classList.remove('done'); btn.textContent='抽今天的签 🎲'; note.textContent='每天一次机会'; }
+  const btn=$('draw-btn'), note=$('draw-note'), slot=currentSlot();
+  if(!slot){ btn.classList.add('done'); btn.disabled=true; btn.textContent='今天三场已收工 🌙'; note.textContent='明早 8:00 前开新的一场'; return; }
+  btn.disabled=false;
+  const sname=SLOTS.find(s=>s.id===slot).name, rec=myDrawn(slot);
+  if(rec){ btn.classList.add('done'); btn.textContent='本场已抽：'+rec.emo+' '+rec.name;
+    note.textContent = slot<3 ? ('下一场 '+SLOTS[slot-1].endH+':00 开') : '今天最后一场也抽过啦'; }
+  else{ btn.classList.remove('done'); btn.textContent='抽'+sname+'的签 🎲'; note.textContent='本场还没抽，手气在线 ✨'; }
+}
+function renderDrawSlots(){
+  const box=$('draw-slots'); if(!box)return; box.innerHTML='';
+  const slot=currentSlot(), iso=bjNow().iso;
+  SLOTS.forEach(s=>{
+    const rec=drawRec(state.me,iso,s.id), isNow=s.id===slot;
+    let dsv,dss;
+    if(rec){ dsv=rec.emo; dss='已抽'; }
+    else if(isNow){ dsv='🎲'; dss='可抽'; }
+    else if(slot===null||s.id<slot){ dsv='—'; dss='已错过'; }
+    else { dsv='🔒'; dss='未开'; }
+    const el=document.createElement('div'); el.className='dslot'+(isNow?' now':'');
+    el.innerHTML=`<div class="dst">${s.name} ${s.label}</div><div class="dsv">${dsv}</div><div class="dss">${dss}</div>`;
+    box.appendChild(el);
+  });
+}
+function renderDrawOthers(){
+  const box=$('draw-others'); if(!box)return;
+  const iso=bjNow().iso;
+  const rows=state.cfg.players.map(p=>{
+    const emos=SLOTS.map(s=>{ const r=drawRec(p.id,iso,s.id); return r?`<span>${r.emo}</span>`:`<span class="miss">·</span>`; }).join('');
+    return `<div class="dorow"><span class="doa">${p.emoji}</span><span class="dn">${esc(p.name)}${p.id===state.me?'（你）':''}</span><span class="de">${emos}</span></div>`;
+  }).join('');
+  box.innerHTML=`<div class="doh">今天大家的手气（早 / 午 / 晚）</div>${rows}`;
 }
 function openDraw(){
-  const d=drawnToday();
-  if(d){ renderDrawDone(d); $('dw-bg').classList.add('show'); return; }
-  // spin
-  $('dw').innerHTML=`<div class="dw-eyebrow">今 日 手 气</div><div class="dw-spin">🎲</div><div class="dw-spinlabel">转动中…</div>`;
-  $('dw-bg').classList.add('show');
-  setTimeout(spinResult,1200);
+  const slot=currentSlot();
+  if(!slot){ toast('今天三场都结束啦，明早再来 🌙'); return; }
+  const rec=myDrawn(slot);
+  if(rec){ renderDrawDone(rec); $('dw-bg').classList.add('show'); return; }
+  renderNineGrid(slot); $('dw-bg').classList.add('show');
 }
-async function spinResult(){
-  const prize=pickPrize();
-  pendingDraw={prize,myExp:null,target:null,otherExp:null};
-  // 先记录抽到了（防重抽）
-  const t=todayISO(); state.draw[state.me]=state.draw[state.me]||{};
-  state.draw[state.me][t]={prize:prize.id,emo:prize.emo,name:prize.name,ts:Date.now(),applied:false};
-  await sSet(kDraw(state.me),JSON.stringify(state.draw[state.me]),true);
-  renderDrawBtn();
-
-  if(prize.id==='mood'){ renderPrizeSimple(prize,prize.desc); return; }
-  if(prize.id==='budget'){
-    const amt=prize.amts[Math.floor(Math.random()*prize.amts.length)];
-    await applyFx({kind:'budget',owner:state.me,amount:amt},'额度 +'+amt);
-    renderPrizeSimple(prize,`本月预算 +${amt} 元，已到账 💰`); render(); return;
+let spinning=false;
+function renderNineGrid(slot){
+  const sname=SLOTS.find(s=>s.id===slot).name;
+  const gridOrder=[0,1,2,5,8,7,6,3]; // 顺时针环对应的 grid 位置
+  const gw=new Array(9); WHEEL.forEach((pid,i)=>{ gw[gridOrder[i]]=pid; });
+  let html='<div class="grid9" id="grid9">';
+  for(let g=0;g<9;g++){
+    if(g===4){ html+=`<div class="g9 center ready" id="g9-go"><span class="g9c">开始<br>抽${sname}</span></div>`; }
+    else{ const pr=PRIZES.find(x=>x.id===gw[g]); html+=`<div class="g9" data-cell="${g}"><span class="g9e">${pr.emo}</span><span class="g9n">${pr.name.replace(' +1','').replace('奖励','')}</span></div>`; }
   }
-  // 需要选择的类型
+  html+='</div>';
+  $('dw').innerHTML=`<div class="dw-close" id="dw-x">✕</div><div class="dw-eyebrow">${sname} · 转 一 转</div>${html}<div class="dw-desc" style="margin-top:10px">点中间开始，看今天手气落在哪一格 🎯</div>`;
+  $('dw-x').onclick=closeDraw;
+  $('g9-go').onclick=()=>startSpin(gridOrder);
+}
+function startSpin(gridOrder){
+  if(spinning)return; spinning=true;
+  const go=$('g9-go'); go.classList.remove('ready'); go.classList.add('disabled'); go.querySelector('.g9c').innerHTML='转动中…';
+  const prize=pickPrize();
+  const wheelIdxs=WHEEL.map((id,i)=>id===prize.id?i:-1).filter(i=>i>=0);
+  const targetWheel=wheelIdxs[Math.floor(Math.random()*wheelIdxs.length)];
+  const total=gridOrder.length*2 + targetWheel;
+  let step=0, delay=60;
+  function lightAt(g){ document.querySelectorAll('#grid9 .g9[data-cell]').forEach(c=>c.classList.toggle('lit',+c.dataset.cell===g)); }
+  function tick(){
+    lightAt(gridOrder[step%gridOrder.length]); step++;
+    if(step>total){ spinning=false; landPrize(prize); return; }
+    if(step>total-gridOrder.length) delay+=20;
+    setTimeout(tick,delay);
+  }
+  tick();
+}
+async function landPrize(prize){
+  const iso=bjNow().iso, slot=currentSlot();
+  pendingDraw={prize,myExp:null,target:null,otherExp:null,iso,slot};
+  state.draw[state.me]=state.draw[state.me]||{}; state.draw[state.me][iso]=state.draw[state.me][iso]||{};
+  state.draw[state.me][iso][slot]={prize:prize.id,emo:prize.emo,name:prize.name,ts:Date.now(),applied:false};
+  await sSet(kDraw(state.me),JSON.stringify(state.draw[state.me]),true);
+  renderDrawBtn(); renderDrawSlots(); renderDrawOthers();
+  if(prize.id==='mood'){ renderPrizeSimple(prize,prize.desc); return; }
+  if(prize.id==='budget'){ const amt=prize.amts[Math.floor(Math.random()*prize.amts.length)]; await applyFx({kind:'budget',owner:state.me,amount:amt}); renderPrizeSimple(prize,`本月预算 +${amt} 元，已到账 💰`); render(); return; }
   const myList=(computed[state.me]?computed[state.me].list:[]).filter(e=>!String(e.id).startsWith('in_')&&e.eff>0);
   const others=state.cfg.players.filter(p=>p.id!==state.me);
-  if((prize.id==='discount'||prize.id==='waive') && !myList.length){ return downgrade('你还没有可操作的消费'); }
-  if(prize.id==='transfer' && (!myList.length||!others.length)){ return downgrade('暂时没有可转嫁的对象或消费'); }
-  if(prize.id==='swap' && (!myList.length||!others.length)){ return downgrade('暂时凑不齐交换的条件'); }
+  if((prize.id==='discount'||prize.id==='waive')&&!myList.length) return downgradeDraw('你还没有可操作的消费');
+  if(prize.id==='transfer'&&(!myList.length||!others.length)) return downgradeDraw('暂时没有可转嫁的对象或消费');
+  if(prize.id==='swap'&&(!myList.length||!others.length)) return downgradeDraw('暂时凑不齐交换的条件');
   renderPrizePick(prize,myList,others);
 }
-async function downgrade(reason){
-  await applyFx({kind:'budget',owner:state.me,amount:10},'安慰奖 +10');
-  pendingDraw.prize={id:'mood',emo:'🍀',name:'安慰奖'};
-  const t=todayISO(); state.draw[state.me][t]={prize:'mood',emo:'🍀',name:'安慰奖 +10',ts:Date.now(),applied:true};
+async function downgradeDraw(reason){
+  const {iso,slot}=pendingDraw;
+  await applyFx({kind:'budget',owner:state.me,amount:10});
+  state.draw[state.me][iso][slot]={prize:'mood',emo:'🍀',name:'安慰奖 +10',ts:Date.now(),applied:true};
   await sSet(kDraw(state.me),JSON.stringify(state.draw[state.me]),true);
-  renderDrawBtn(); render();
+  renderDrawBtn(); renderDrawSlots(); renderDrawOthers(); render();
   renderPrizeSimple({emo:'🍀',name:'安慰奖 +10'},reason+'，送你 10 元额度压压惊 💛');
 }
 function renderPrizeSimple(prize,desc){
@@ -945,7 +1071,7 @@ async function confirmPrize(prize){
   else if(prize.id==='swap'){ fx={kind:'swap',owner:state.me,myExpId:pendingDraw.myExp,other:pendingDraw.target,otherExpId:pendingDraw.otherExp}; msg='和 '+nameOf(pendingDraw.target)+' 换好了 🔄'; }
   await applyFx(fx,msg);
   // 标记 applied
-  const t=todayISO(); if(state.draw[state.me]&&state.draw[state.me][t]){ state.draw[state.me][t].applied=true; await sSet(kDraw(state.me),JSON.stringify(state.draw[state.me]),true); }
+  const {iso,slot}=pendingDraw; if(state.draw[state.me]&&state.draw[state.me][iso]&&state.draw[state.me][iso][slot]){ state.draw[state.me][iso][slot].applied=true; await sSet(kDraw(state.me),JSON.stringify(state.draw[state.me]),true); }
   render(); closeDraw(); toast(msg);
 }
 async function applyFx(fx,msg){
@@ -996,11 +1122,31 @@ function buildReport(){
       <div class="rp-stat"><span class="sl">👍 彼此夸夸</span><span class="sv">${totalLike} 次</span></div>
     </div>
     <div class="rp-quote">${quote}</div>
+    <button class="rp-share" id="rp-copy">📋 复制战绩文字</button>
     <div class="rp-foot">长按截图，发到群里或朋友圈 📸<br>🐷 省钱搭子 · 多人极简挑战</div>`;
   $('rp-close').onclick=closeReport;
+  const cp=$('rp-copy'); if(cp) cp.onclick=copyReport;
 }
 function openReport(){ buildReport(); $('rp-bg').classList.add('show'); }
 function closeReport(){ $('rp-bg').classList.remove('show'); }
+async function shareInvite(){
+  const url=location.href, title=(state.cfg&&state.cfg.title)||'省钱搭子';
+  if(navigator.share){ try{ await navigator.share({title,text:'来跟我比比谁更省钱！',url}); return; }catch(e){ if(e&&e.name==='AbortError')return; } }
+  try{ await navigator.clipboard.writeText(url); toast('链接已复制，粘贴发给朋友 📋'); }
+  catch(e){ try{ prompt('复制这个链接发给朋友：',url); }catch(_){ toast('请手动复制网址分享'); } }
+}
+function reportText(){
+  const c=state.cfg, rows=c.players.map(p=>({p,...computed[p.id]})).sort((a,b)=>a.total-b.total);
+  let s=`【${c.title||'省钱搭子'}】战报\n`;
+  rows.forEach((r,i)=>{ s+=`${['🥇','🥈','🥉'][i]||((i+1)+'.')} ${r.p.name} 花¥${yuan(r.total)} 剩¥${yuan(r.balance)}${r.balance<0?'（超支）':''}\n`; });
+  s+=`\n一起来省钱 👉 ${location.href}`;
+  return s;
+}
+async function copyReport(){
+  const t=reportText();
+  try{ await navigator.clipboard.writeText(t); toast('战绩已复制，去群里粘贴 📋'); }
+  catch(e){ try{ prompt('复制这段战绩：',t); }catch(_){ toast('复制失败'); } }
+}
 function checkReportBar(pr){
   const bar=$('reportbar');
   if(pr.phase==='after'){ bar.classList.add('show'); if(!reportSeen){ reportSeen=true; setTimeout(openReport,700); } }
@@ -1099,10 +1245,10 @@ async function doJoin(){
 function openSheet(){ $('set-mename').textContent=state.me?(emoOf(state.me)+' '+nameOf(state.me)):''; $('set-notify').textContent=notifyOn?'已开启':'开启'; $('sheet-bg').classList.add('show'); $('sheet').classList.add('show'); }
 function closeSheet(){ $('sheet-bg').classList.remove('show'); $('sheet').classList.remove('show'); }
 function openAddForm(){ $('m-addform').classList.add('open'); $('m-addbtn').style.display='none'; $('ai-amt').focus(); }
-function closeAddForm(){ $('m-addform').classList.remove('open'); $('m-addbtn').style.display='flex'; $('ai-amt').value=''; $('ai-note').value=''; setCat('other'); document.querySelectorAll('.notechip').forEach(c=>c.classList.remove('on')); }
-function setCat(id){ curCat=id; document.querySelectorAll('#ai-cats .catbtn').forEach(b=>b.classList.toggle('on',b.dataset.cat===id)); }
+function closeAddForm(){ $('m-addform').classList.remove('open'); $('m-addbtn').style.display='flex'; $('ai-amt').value=''; $('ai-note').value=''; editingId=null; $('ai-save').textContent='记下这笔'; setCat('food'); }
+function setCat(id){ curCat=id; document.querySelectorAll('#ai-cats .catbtn').forEach(b=>b.classList.toggle('on',b.dataset.cat===id)); buildSubs(id); }
 function buildCats(){ const box=$('ai-cats'); box.innerHTML=''; CATS.forEach(c=>{ const b=document.createElement('button'); b.className='catbtn'+(c.id===curCat?' on':''); b.dataset.cat=c.id; b.innerHTML=`<span class="ce">${c.emo}</span>${c.name}`; b.onclick=()=>setCat(c.id); box.appendChild(b); }); }
-function buildChips(){ const box=$('ai-chips'); box.innerHTML=''; QUICK_NOTES.forEach(n=>{ const c=document.createElement('button'); c.className='notechip'; c.textContent=n; c.onclick=()=>{ $('ai-note').value=n; document.querySelectorAll('.notechip').forEach(x=>x.classList.toggle('on',x===c)); }; box.appendChild(c); }); }
+function buildSubs(catId){ const box=$('ai-chips'); box.innerHTML=''; (catOf(catId).subs||[]).forEach(n=>{ const c=document.createElement('button'); c.className='notechip'; c.textContent=n; c.onclick=()=>{ $('ai-note').value=n; document.querySelectorAll('#ai-chips .notechip').forEach(x=>x.classList.toggle('on',x===c)); }; box.appendChild(c); }); }
 function newMantra(){ mantraIdx=Math.floor(Math.random()*MANTRAS.length); $('mantra-txt').textContent=MANTRAS[mantraIdx]; }
 
 function enterMain(){ show('scr-main');
@@ -1122,6 +1268,7 @@ function bind(){
   $('set-switch').onclick=()=>{ closeSheet(); initJoin(); show('scr-join'); };
   $('set-notify').onclick=toggleNotify;
   $('set-report').onclick=()=>{ closeSheet(); openReport(); };
+  $('set-invite').onclick=()=>{ closeSheet(); shareInvite(); };
   $('set-reset').onclick=async()=>{
     if(!confirm('确定清空整场挑战？所有人的记录都会没掉，无法恢复。')) return;
     const ps=(state.cfg&&state.cfg.players)||[];
@@ -1144,7 +1291,7 @@ function bind(){
 
 /* ============== init ============== */
 async function init(){
-  bind(); buildCats(); buildChips();
+  bind(); buildCats(); buildSubs(curCat);
   await pullShared();
   state.me=await sGet(K.me,false);
   if(!state.cfg||!state.cfg.players){ initSetup(); show('scr-setup'); return; }
