@@ -514,7 +514,7 @@ const PRIZES=[
 ];
 // 每天三场，按北京时间；endH 为该场截止小时
 const SLOTS=[
-  {id:1,name:'早场',endH:8, label:'8:00前'},
+  {id:1,name:'早场',endH:8, label:'9:00前'},
   {id:2,name:'午场',endH:18,label:'18:00前'},
   {id:3,name:'晚场',endH:22,label:'22:00前'}
 ];
@@ -887,7 +887,7 @@ function myDrawn(slot){ return drawRec(state.me,bjNow().iso,slot); }
 
 function renderDrawBtn(){
   const btn=$('draw-btn'), note=$('draw-note'), slot=currentSlot();
-  if(!slot){ btn.classList.add('done'); btn.disabled=true; btn.textContent='今天三场已收工 🌙'; note.textContent='明早 8:00 前开新的一场'; return; }
+  if(!slot){ btn.classList.add('done'); btn.disabled=true; btn.textContent='今天三场已收工 🌙'; note.textContent='明早 9:00 前开新的一场'; return; }
   btn.disabled=false;
   const sname=SLOTS.find(s=>s.id===slot).name, rec=myDrawn(slot);
   if(rec){ btn.classList.add('done'); btn.textContent='本场已抽：'+rec.emo+' '+rec.name;
